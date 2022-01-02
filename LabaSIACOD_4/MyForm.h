@@ -104,6 +104,7 @@ namespace LabaSIACOD4 {
 			this->Controls->Add(this->textBox1);
 			this->Name = L"MyForm";
 			this->Text = L"MyForm";
+			this->Load += gcnew System::EventHandler(this, &MyForm::MyForm_Load);
 			this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::panel1_MouseClick);
 			this->ResumeLayout(false);
 			this->PerformLayout();
@@ -117,7 +118,10 @@ namespace LabaSIACOD4 {
 		int tmp;
 		int tmpY = 0;
 		int count_lighat = 0;
-		//array<System::Windows::Forms::TextBox^>^ txt_box_mas = gcnew array<System::Windows::Forms::TextBox^>(N);
+		int reb = 0;
+		array<bool, 2>^ visited = gcnew array<bool, 2>(60, 60/*, 60*/);
+		array<bool, 2>^ rebro = gcnew array<bool, 2>(60, 60);
+		array<System::Windows::Forms::Button^>^ button_mas = gcnew array<System::Windows::Forms::Button^>(N);
 
 
 	private: System::Void txt_box_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -125,17 +129,19 @@ namespace LabaSIACOD4 {
 		count++;
 		if (count % 2 == 0) {
 			Graphics^ g = this->CreateGraphics();
-			g->DrawLine(gcnew Pen(Color::Black), tmpX+20, tmpY+10, Convert::ToInt32(a->Location.X)+20, Convert::ToInt32(a->Location.Y)+10);
-			//this->Invalidate();
+			g->DrawLine(gcnew Pen(Color::Black), tmpX + 20, tmpY + 10, Convert::ToInt32(a->Location.X) + 20, Convert::ToInt32(a->Location.Y) + 10);
 			lst[tmp].add(Convert::ToInt32(a->Text), &lst[Convert::ToInt32(a->Text)]);
 			lst[Convert::ToInt32(a->Text)].add(tmp, &lst[tmp]);
+			rebro[tmp, Convert::ToInt32(a->Text)] = true;
+			reb++;
 		}
+			//this->Invalidate();
 		tmp = Convert::ToInt32(a->Text);
 		tmpX = Convert::ToInt32(a->Location.X);
 		tmpY = Convert::ToInt32(a->Location.Y);
 	}
 
-		   List<Graf> lst;
+        List<Graf> lst;
 	private: System::Void panel1_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
 		Graf a(j);
 		lst.push_back(a);
@@ -147,16 +153,50 @@ namespace LabaSIACOD4 {
 		txt_box->Tag = j;
 		txt_box->Text = j.ToString();
 		txt_box->Click += gcnew System::EventHandler(this, &MyForm::txt_box_Click);
-		//txt_box_mas[j] = txt_box;
+		button_mas[j] = txt_box;
 		this->Controls->Add(txt_box);
 		j++;
 	}
 
 
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-		label1->Text = (textBox1->Text) + " " +  (Convert::ToString(lst[Convert::ToInt32(textBox1->Text)].obhod()));
+
+		label1->Text = (textBox1->Text) + " " +  (Convert::ToString(lst[Convert::ToInt32(textBox1->Text)].obhod(visited)));
+
+		Graphics^ g = this->CreateGraphics();
+		for (int i = 0; i < reb; i++) {
+			for (int j = 0; j < reb; j++) {
+				if (rebro[i, j]) {
+					g->DrawLine(gcnew Pen(Color::Black), button_mas[i]->Location.X + 20, button_mas[i]->Location.Y + 10, button_mas[j]->Location.X + 20, button_mas[j]->Location.Y + 10);
+			    }
+			}
+		}
+		for (int i = 0; i < reb; i++) {
+			for (int j = 0; j < reb; j++) {
+			//	for (int k = 0; k < reb; k++) {
+					if (visited[i, j]) {					
+						Threading::Thread::Sleep(1000);
+						g-> DrawLine(gcnew Pen(Color::Red), button_mas[i]->Location.X + 20, button_mas[i]->Location.Y + 10, button_mas[j]->Location.X + 20, button_mas[j]->Location.Y + 10);
+					}
+				
+			}
+		}
+		for (int i = 0; i < 10; ++i) {
+			for (int j = 0; j < 10; ++j) {
+			//	for (int k = 0; j < 10; ++j)
+				    visited[i,j] = false;
+			}
+		}
 		for (int i = 0; i<j; i++)
 			lst[i].setVisited(false);
+		//this->Invalidate();
 	}
-};
-}
+	private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {
+		for (int i = 0; i < 60; i++) {
+			for (int j = 0; j < 60; j++) {
+				rebro[i, j] = false;
+			}
+		}
+	}
+	};
+	}

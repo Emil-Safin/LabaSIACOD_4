@@ -1,4 +1,5 @@
 #pragma once
+#include "Cont.h"
 #ifndef GRAF_H
 #define GRAF_H
 using namespace System;
@@ -41,7 +42,7 @@ public:
 	void setVisited(bool v) { this->v = v; }
 	int getNum() { return num; }
 
-	String^ obhod() {
+	String^ obhod(cli::array<bool, 2>^ visit/*, int t = 0*/) {
 		String ^s;
 		int mas[25];
 		int counter = 0;
@@ -52,12 +53,14 @@ public:
 				s += (arr[i]->num).ToString() + " ";
 				mas[counter] = i;
 				arr[i]->setVisited(true);
+				visit[this->num, arr[i]->num/*, t*/] = true;
+				//t++;
 			counter++;
 			}
 		}
 		for (int i = 0; i < counter; i++) {
 			//if (!arr[mas[i]]->visited()) {
-				s += (arr[mas[i]]->obhod())+ " ";
+				s += (arr[mas[i]]->obhod(visit/*, t*/))+ " ";
 			//}
 		}
 		return s;
